@@ -10,13 +10,13 @@ This is a pre commit script that checks added, copied, modified or renamed files
 ## Installation
 
 1. `git clone` this repository.
-2. Copy the `pre-commit` file to your project's Git hooks folder. Make sure that the `pre-commit` file is executable.
+2. Copy the `pre-commit` file to your project's root folder. Make sure that the `pre-commit` file is executable.
 
 ```bash
 # Put the pre-commit file in the .git/hooks/ folder in your git repository.
-curl -O https://raw.githubusercontent.com/AllysonSilva/php-pre-commit/master/pre-commit
+curl -O https://github.com/mihailgolban/php-pre-commit/blob/master/pre-commit
 
-# In your composer.json file add as required dependency
+// composer.json
     "require-dev": {
         "phpunit/phpunit": "^8.5",
         "squizlabs/php_codesniffer": "^3.3",
@@ -25,18 +25,18 @@ curl -O https://raw.githubusercontent.com/AllysonSilva/php-pre-commit/master/pre
         "sebastian/phpcpd": "^5.0"
     }
 
-# add husky hooks
+npm install husky --save-dev
+// package.json
 "husky": {
-		"hooks": {
-			"pre-commit": "./pre-commit.sh",
-			"commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
-			"post-commit": "git update-index --again"
-		}
+	"hooks": {
+		"pre-commit": "./pre-commit",
+		"commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
+		"post-commit": "git update-index --again"
 	}
-mv pre-commit .git/hooks/pre-commit
+}
 
 # don't forget to make the pre-commit file executable
-chmod +x .git/hooks/pre-commit
+chmod +x pre-commit
 ```
 
 ### PHP Lint(Syntax check)
