@@ -2,6 +2,7 @@
 
 ##########
 # Git Pre-Commit file for PHP projects.
+# https://github.com/mihailgolban/php-pre-commit/blob/master/pre-commit
 ###
 #
 # This hook performs the following validation:
