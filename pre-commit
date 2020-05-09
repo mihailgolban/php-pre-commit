@@ -6,13 +6,10 @@
 #
 # This hook performs the following validation:
 #   - PHP Lint (http://php.net/manual/en/features.commandline.options.php)
-#   - PHP CodeSniffer (PHPCS + (PHPCBF) (https://github.com/squizlabs/PHP_CodeSniffer)
 #   - PHP Coding Standards Fixer (PHP CS Fixer) (https://github.com/FriendsOfPHP/PHP-CS-Fixer)
 #   - PHP Mess Detector (PHPMD) (https://phpmd.org/)
 #   - PHP Copy/Paste Detector (PHPCPD) (https://github.com/sebastianbergmann/phpcpd)
 #
-# @version 1.0.1
-# @author Allyson Silva <allysonsilvaweb@gmail.com>
 ##########
 
     cat <<\EOF
@@ -209,110 +206,6 @@ if [ -n "$files" ]; then
         exit 1
     fi
 
-    echo "╭────────────────────────────────────────────────────────────────────────────────╮"
-    printf "|〈〈〈 ${color_bold_white}Running PHP CodeSniffer + PHP Code Beautifier. Code standard PSR2.${color_reset} 〉〉〉|\n"
-    echo "╰────────────────────────────────────────────────────────────────────────────────╯"
-    echo
-
-    # PHP CodeSniffer default execution file.
-    #
-    # curl -OL https://squizlabs.github.io/PHP_CodeSniffer/phpcs.phar
-    phpcs_local_bin="phpcs.phar"
-
-    # Default command to run PHP CodeSniffer.
-    phpcs_bin="php $phpcs_local_bin"
-
-    # Default command via install local project package with Composer (Depot Manager for PHP).
-    phpcs_vendor_bin="vendor/bin/phpcs"
-
-    # Standard command via composer global installation.
-    phpcs_global_bin="phpcs"
-
-    # Verifying command default based on existing conditions.
-    if [ -f "$phpcs_vendor_bin" ]; then
-        phpcs_bin=$phpcs_vendor_bin
-    else
-        if hash phpcs 2>/dev/null; then
-            phpcs_bin=$phpcs_global_bin
-        else
-            if [ -f "$phpcs_local_exec" ]; then
-                phpcs_bin=$phpcs_bin
-            else
-                message_warning "No valid PHP Codesniffer executable found! Please have one available as either $phpcs_vendor_bin, $phpcs_global_bin or $phpcs_local_exec"
-                echo
-                exit 1
-            fi
-        fi
-    fi
-
-    if ! hash phpcbf 2>/dev/null; then
-        message_warning "No valid PHP Code Beautifier executable found! Please have one available as either [phpcbf]."
-        message_info "Visit: https://github.com/squizlabs/PHP_CodeSniffer/wiki/Fixing-Errors-Automatically"
-        echo
-        exit 1
-    fi
-
-    # Arguments both for use for PHPCS and for PHPCBF.
-    php_cs_cbf_common_arguments="--standard=PSR2 --colors --error-severity=1 --ignore='*blade.php*,*twig.php*' --tab-width=4 --encoding=utf-8 --extensions=php -d memory_limit=32M -n"
-
-    # Only PHPCS exclusives arguments.
-    phpcs_arguments="-s --report=full --report-width=auto"
-
-    # Check for errors when running PHPCS.
-    phpcs_errors=false
-
-    printf "${color_bold_black}${color_background_yellow}PHP CodeSniffer Arguments${color_reset} ${color_bold_yellow}${php_cs_cbf_common_arguments} ${phpcs_arguments}${color_reset}\n"
-    echo
-    printf "${color_bold_black}${color_background_yellow}Use PHPCBF To Fix Problems${color_reset} ${color_bold_green}phpcbf${color_reset}${color_bold_yellow} ${php_cs_cbf_common_arguments} ${color_bold_purple}{FILES OR FOLDER}${color_reset}\n"
-    echo
-
-    for file in $files; do
-
-        # Error codes before applying PHPCBF.
-        phpcs_codestyle_errors_before_autofix=$($phpcs_bin $php_cs_cbf_common_arguments $phpcs_arguments $file)
-
-        # ([-z]=Empty)
-        if [ -z "$phpcs_codestyle_errors_before_autofix" ];
-        then
-            # No errors to fix, skip to next file.
-            continue
-        fi
-
-        # Run PHP Code Beautifier and Fixer the file.
-        # Begin PHP Code Beautifier and Fixer.
-        phpcbf_output="$(phpcbf $php_cs_cbf_common_arguments $file)"
-
-        if [ -n "$phpcbf_output" ]; then
-            # File had some issues but they were automatically fixed.
-            printf "${color_bold_green}Codestyle errors were fixed automatically! add those changes and commit again.${color_reset}\n"
-            # Display PHPCBF filtered output.
-            printf "${phpcbf_output}\n"
-        fi
-
-        # Run PHP Code Style Check and detect in the fixer was not able to fix code.
-        phpcs_codestyle_errors="$($phpcs_bin $php_cs_cbf_common_arguments $phpcs_arguments $file)"
-
-        # If it did contain errors, we have output.
-        # Check last command (PHPCS) code for fail.
-        # ([-n]=Not Empty)
-        if [ -n "$phpcs_codestyle_errors" ]; then
-
-            # Display error and PHPCS filtered output.
-            # Display processing file error.
-            printf "${phpcs_codestyle_errors}\n"
-
-            # Adding error message.
-            errors=("${errors[@]}" "$output")
-
-            phpcs_errors=true
-        fi
-    done
-
-    if [ "$phpcs_errors" = false ]; then
-        message_success 'No Errors Found - PHP CodeSniffer + PHP Code Beautifier'
-        echo
-    fi
-
     echo
     echo "╭─────────────────────────────────────────────────╮"
     printf "|〈〈〈 ${color_bold_white}PHP Coding Standards Fixer(PSR2)...${color_reset} 〉〉〉|\n"
@@ -330,7 +223,7 @@ if [ -n "$files" ]; then
         exit 1
     fi
 
-    printf "${color_bold_yellow}✔︎ Rules: PSR2, Symfony${color_reset}\n"
+    printf "${color_bold_yellow}✔︎ Rules: PSR1, PSR2, Symfony, PhpCsFixer, PHP73Migration${color_reset}\n"
     printf "${color_bold_yellow}✔︎ Using Cache: No${color_reset}\n"
     printf "${color_bold_yellow}✔︎ Output Format: Text(default)${color_reset}\n"
     echo
@@ -338,13 +231,13 @@ if [ -n "$files" ]; then
     git status --porcelain | grep -e '^[AM]\(.*\).php$' | cut -c 3- | while read line; do
         # php-cs-fixer CHECK.
         # --dry-run (The --dry-run option displays the files that need to be fixed but without actually modifying them).
-        php_cs_fixer_codestyle_dry_run=`php-cs-fixer --dry-run --diff --verbose --using-cache=no --rules=@PSR2,@Symfony fix ${line} 2>&1 | grep "diff"`
+        php_cs_fixer_codestyle_dry_run=`php-cs-fixer --dry-run --diff --verbose --using-cache=no --rules=@PSR1,@PSR2,,@Symfony,@Symfony,@PhpCsFixer,@PHP73Migration fix ${line} 2>&1 | grep "diff"`
 
         # Check last command (PHP-CS-FIXER) code for fixed.
         if [ -n "$php_cs_fixer_codestyle_dry_run" ]; then
 
             # Applicando PSRs e @Symfony.
-            php_cs_fixer_codestyle=`php-cs-fixer --diff --using-cache=no --rules=@PSR2,@Symfony fix ${line} &>/dev/null`
+            php_cs_fixer_codestyle=`php-cs-fixer --diff --using-cache=no --rules=@PSR1,@PSR2,,@Symfony,@Symfony,@PhpCsFixer,@PHP73Migration fix ${line} &>/dev/null`
 
             git add ${line}
 
