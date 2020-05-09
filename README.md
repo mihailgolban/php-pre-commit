@@ -15,7 +15,8 @@ This is a pre commit script that checks added, copied, modified or renamed files
 ```bash
 # Put the pre-commit file in the .git/hooks/ folder in your git repository.
 curl -O https://github.com/mihailgolban/php-pre-commit/blob/master/pre-commit
-
+```
+```json
 // composer.json
     "require-dev": {
         "phpunit/phpunit": "^8.5",
@@ -24,8 +25,11 @@ curl -O https://github.com/mihailgolban/php-pre-commit/blob/master/pre-commit
         "phpmd/phpmd" : "@stable",
         "sebastian/phpcpd": "^5.0"
     }
-
+```
+```bash
 npm install husky --save-dev
+```
+```json
 // package.json
 "husky": {
 	"hooks": {
@@ -34,7 +38,8 @@ npm install husky --save-dev
 		"post-commit": "git update-index --again"
 	}
 }
-
+```
+```bash
 # don't forget to make the pre-commit file executable
 chmod +x pre-commit
 ```
@@ -62,4 +67,4 @@ A bash script that runs `php -l` against stage files that are php. Assumes `php`
 
 ## License
 
-[MIT License](https://github.com/AllysonSilva/php-pre-commit/blob/master/LICENSE)
+[MIT License](https://github.com/mihailgolban/php-pre-commit/blob/master/LICENSE)
