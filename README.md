@@ -26,9 +26,6 @@ curl -O https://github.com/mihailgolban/php-pre-commit/blob/master/pre-commit
         "sebastian/phpcpd": "^5.0"
     }
 ```
-```bash
-npm install husky --save-dev
-```
 ```json
 // package.json
 "husky": {
