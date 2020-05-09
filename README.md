@@ -16,32 +16,33 @@ This is a pre commit script that checks added, copied, modified or renamed files
 # Put the pre-commit file in the .git/hooks/ folder in your git repository.
 curl -O https://raw.githubusercontent.com/AllysonSilva/php-pre-commit/master/pre-commit
 
-# create new hooks folder
-mkdir .git/hooks
+# In your composer.json file add as required dependency
+    "require-dev": {
+        "phpunit/phpunit": "^8.5",
+        "squizlabs/php_codesniffer": "^3.3",
+        "friendsofphp/php-cs-fixer": "^2.16",
+        "phpmd/phpmd" : "@stable",
+        "sebastian/phpcpd": "^5.0"
+    }
 
-# move pre-commit to new hooks folder
+# add husky hooks
+"husky": {
+		"hooks": {
+			"pre-commit": "./pre-commit.sh",
+			"commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
+			"post-commit": "git update-index --again"
+		}
+	}
 mv pre-commit .git/hooks/pre-commit
 
 # don't forget to make the pre-commit file executable
 chmod +x .git/hooks/pre-commit
 ```
 
-## Usage
-
-This will work automatically before every commit.
-
-## [Dependencies](https://github.com/AllysonSilva/environment/blob/master/Composer/composer.json)
-
 ### PHP Lint(Syntax check)
 
 A bash script that runs `php -l` against stage files that are php. Assumes `php` is a global executable command. Will exit when it hits the first syntax error.
 
-
-### [PHP CodeSniffer (PHPMD + PHPCBF)](https://github.com/squizlabs/PHP_CodeSniffer#installation)
-
-> PHP_CodeSniffer is a set of two PHP scripts; the main `phpcs` script that tokenizes PHP, JavaScript and CSS files to detect violations of a defined coding standard, and a second `phpcbf` script to automatically correct coding standard violations. PHP_CodeSniffer is an essential development tool that ensures your code remains clean and consistent.
-
-It will assume that there is a valid PHP Code Sniffer executable at these locations, `vendor/bin/phpcs`, `phpcs` or `php phpcs.phar`.
 
 ### [PHP Coding Standards Fixer (PHP-CS-Fixer)](https://github.com/FriendsOfPHP/PHP-CS-Fixer#installation)
 
@@ -54,6 +55,10 @@ It will assume that there is a valid PHP Code Sniffer executable at these locati
 ### [PHP Copy/Paste Detector (PHPCPD)](https://github.com/sebastianbergmann/phpcpd)
 
 > `phpcpd` is a Copy/Paste Detector (CPD) for PHP code.
+
+### [PHP Unit Testing](https://github.com/sebastianbergmann/phpunit/)
+
+> `phpunit` is a Unit Testing framework.
 
 ## License
 
